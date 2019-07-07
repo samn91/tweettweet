@@ -29,24 +29,24 @@ class TweetsViewModelTest {
     @Test
     fun firstLoad() {
         tweetsViewModel.loadInitTweets()
-        val value1 = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData())
+        val value1 = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData()).second
         Assert.assertEquals(30, value1.size)
 
         tweetsViewModel.loadInitTweets()
-        val value2 = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData())
+        val value2 = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData()).second
         Assert.assertEquals(30, value2.size)
     }
 
     @Test
     fun nextLoad() {
         tweetsViewModel.loadInitTweets()
-        val value = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData())
+        val value = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData()).second
         Assert.assertEquals(30, value.size)
         tweetsViewModel.loadNextTweets()
-        val value1 = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData())
+        val value1 = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData()).second
         Assert.assertEquals(40, value1.size)
         tweetsViewModel.loadNextTweets()
-        val value2 = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData())
+        val value2 = LiveDataTestUtil.getValue(tweetsViewModel.getTweetsLiveData()).second
         Assert.assertEquals(50, value2.size)
     }
 

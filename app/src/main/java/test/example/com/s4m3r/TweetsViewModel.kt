@@ -1,14 +1,14 @@
 package test.example.com.s4m3r
 
 import TweetDto
+import UserDto
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Function3
+import io.reactivex.functions.Function4
 
 /**
  * Created by Samer on 7/7/2019 7:18 AM.
@@ -18,11 +18,11 @@ private const val TAG = "TweetsViewModel"
 
 class TweetsViewModel : ViewModel() {
 
-    private val tweetsLiveData = SingleLiveEvent<List<TweetDto>>()
+    private val tweetsLiveData = SingleLiveEvent<Pair<UserDto, List<TweetDto>>>()
     private val clearLiveData = SingleLiveEvent<Nothing?>()
     private val errorLiveData = SingleLiveEvent<Nothing?>()
 
-    fun getTweetsLiveData(): LiveData<List<TweetDto>> = tweetsLiveData
+    fun getTweetsLiveData(): LiveData<Pair<UserDto, List<TweetDto>>> = tweetsLiveData
     //    fun getClearLiveData(): LiveData<Nothing?> = clearLiveData
     fun getErrorLiveData(): LiveData<Nothing?> = errorLiveData
 
@@ -30,6 +30,10 @@ class TweetsViewModel : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     private val tweetList = mutableListOf<TweetDto>()
     private var screenName: String = ""
+
+    private var userDto: UserDto? = null
+
+    private var isFetchinNext = false
 
     fun init(screenName: String) {
         this.screenName = screenName
@@ -44,15 +48,17 @@ class TweetsViewModel : ViewModel() {
     fun loadInitTweets() {
         checkScreenNameSet()
         Single.zip(
+                RetrofitHelper.ApiInterface.getUserInfo(SCREEN_NAME),
                 RetrofitHelper.ApiInterface.getTweetsWithPage(screenName, 1),
                 RetrofitHelper.ApiInterface.getTweetsWithPage(screenName, 2),
                 RetrofitHelper.ApiInterface.getTweetsWithPage(screenName, 3),
-                Function3<List<TweetDto>, List<TweetDto>, List<TweetDto>, List<TweetDto>> { it1, it2, it3 ->
+                Function4<UserDto, List<TweetDto>, List<TweetDto>, List<TweetDto>, List<TweetDto>> { user, it1, it2, it3 ->
+                    userDto = user
                     val res = mutableListOf<TweetDto>()
                     res.addAll(it1)
                     res.addAll(it2)
                     res.addAll(it3)
-                    return@Function3 res
+                    return@Function4 res
                 }).observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     notifyWithNewTweets(it, true)
@@ -63,13 +69,21 @@ class TweetsViewModel : ViewModel() {
 
     fun loadNextTweets() {
         checkScreenNameSet()
+        if (isFetchinNext) {
+            print("abort")
+            return
+        }
         if (minTweetId == null) {
             //got to the end of tweets
             return
         }
 
+        isFetchinNext = true
         RetrofitHelper.ApiInterface.getTweetsWithMaxId(screenName, minTweetId!! - 1)
                 .observeOn(AndroidSchedulers.mainThread())
+                .doFinally {
+                    isFetchinNext = false
+                }
                 .subscribe({
                     notifyWithNewTweets(it, false)
                 }, {
@@ -83,7 +97,7 @@ class TweetsViewModel : ViewModel() {
         }
         minTweetId = list.lastOrNull()?.id
         tweetList.addAll(list)
-        tweetsLiveData.value = tweetList
+        tweetsLiveData.value = Pair(userDto!!, tweetList.toList())
     }
 
     override fun onCleared() {
@@ -93,5 +107,11 @@ class TweetsViewModel : ViewModel() {
 
     private fun Disposable.disposeOnCleared() {
         compositeDisposable.add(this)
+    }
+
+    fun listScrolled(childCount: Int, lastVisibleItem: Int, itemCount: Int) {
+        if (childCount + lastVisibleItem + 5 >= itemCount) {
+            loadNextTweets()
+        }
     }
 }

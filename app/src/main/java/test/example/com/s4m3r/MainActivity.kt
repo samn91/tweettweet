@@ -24,9 +24,14 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.loadInitTweets()
 
+        swiperefresh.setOnRefreshListener {
+            viewModel.loadInitTweets()
+        }
+
         viewModel.getTweetsLiveData().observe(this, Observer {
             tweetsAdapter.updateUser(it.first)
             tweetsAdapter.submitList(it.second)
+            swiperefresh.isRefreshing = false
         })
     }
 

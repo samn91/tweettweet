@@ -22,7 +22,11 @@ class MainActivity : AppCompatActivity() {
         recycler.adapter = tweetsAdapter
         setupScrollListener()
 
-        viewModel.loadInitTweets()
+        if (savedInstanceState == null) {
+            viewModel.loadInitTweets()
+        }else{
+            viewModel.loadSavedTweets()
+        }
 
         swiperefresh.setOnRefreshListener {
             viewModel.loadInitTweets()

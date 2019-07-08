@@ -114,4 +114,12 @@ class TweetsViewModel : ViewModel() {
             loadNextTweets()
         }
     }
+
+    fun loadSavedTweets() {
+        if (userDto == null || tweetList.isNullOrEmpty()) {
+            loadInitTweets()
+        } else {
+            tweetsLiveData.value = Pair(userDto!!, tweetList.toList())
+        }
+    }
 }

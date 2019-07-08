@@ -29,13 +29,13 @@ class TweetsAdapter : ListAdapter<TweetDto, RecyclerView.ViewHolder>(object : Di
         holder.itemView.timeTextView.text = tweetDto.created_at
         holder.itemView.nameTextView.text = user?.name
 
-        val retweetText = if (tweetDto.retweet_count == 1)
-            ("1 retweet")
-        else
-            ("${tweetDto?.retweet_count ?: 0} retweets")
-        holder.itemView.retweetsTextView.text = retweetText
+        holder.itemView.retweetsTextView.text = tweetDto.retweetCount.toString()
+        holder.itemView.likeTextView.text = tweetDto.favoriteCount.toString()
 
-        Picasso.get().load(user?.profile_image_url).into(holder.itemView.imageView)
+        val mediaUrl = tweetDto.entities?.media?.getOrNull(0)?.mediaUrl
+        Picasso.get().load(mediaUrl).into(holder.itemView.mediaImageView)
+
+        Picasso.get().load(user?.profile_image_url).into(holder.itemView.avatarImageView)
     }
 
     fun updateUser(newUser: UserDto) {

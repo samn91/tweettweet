@@ -13,14 +13,14 @@ private const val auth = AUTh // stored in a secret file that will not be push t
 interface ApiEndpointInterface {
 
     @Headers(contType, auth)
-    @GET("1.1/statuses/user_timeline.json?include_entities=false&trim_user=false")
+    @GET("1.1/statuses/user_timeline.json?trim_user=false&tweet_mode=extended")
     fun getTweetsWithPage(@Query("screen_name") screenName: String,
                           @Query("page") page: Int,
                           @Query("count") count: Int = 10): Single<List<TweetDto>>
 
 
     @Headers(contType, auth)
-    @GET("1.1/statuses/user_timeline.json?include_entities=false&trim_user=false")
+    @GET("1.1/statuses/user_timeline.json?trim_user=false&tweet_mode=extended")
     fun getTweetsWithMaxId(@Query("screen_name") screenName: String,
                            @Query("max_id") maxId: Long,
                            @Query("count") count: Int = 10): Single<List<TweetDto>>

@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             viewModel.loadInitTweets()
-        }else{
+        } else {
             viewModel.loadSavedTweets()
         }
 

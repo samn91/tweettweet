@@ -14,9 +14,13 @@ import io.reactivex.functions.Function4
  * Created by Samer on 7/7/2019 7:18 AM.
  */
 
-private const val TAG = "TweetsViewModel"
-
 class TweetsViewModel : ViewModel() {
+    companion object {
+        private const val TAG = "TweetsViewModel"
+        // The minimum number of items to have below your current scroll position
+        // before loading more.
+        private const val THREASHILD = 5
+    }
 
     private val tweetsLiveData = SingleLiveEvent<Pair<UserDto, List<TweetDto>>>()
     private val clearLiveData = SingleLiveEvent<Nothing?>()
@@ -70,7 +74,6 @@ class TweetsViewModel : ViewModel() {
     fun loadNextTweets() {
         checkScreenNameSet()
         if (isFetchinNext) {
-            print("abort")
             return
         }
         if (minTweetId == null) {
@@ -110,7 +113,7 @@ class TweetsViewModel : ViewModel() {
     }
 
     fun listScrolled(childCount: Int, lastVisibleItem: Int, itemCount: Int) {
-        if (childCount + lastVisibleItem + 5 >= itemCount) {
+        if (childCount + lastVisibleItem + THREASHILD >= itemCount) {
             loadNextTweets()
         }
     }

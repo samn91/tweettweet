@@ -10,35 +10,35 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var viewModel: TweetsViewModel
+    private lateinit var viewModel: TweetsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         viewModel = ViewModelProviders.of(this).get(TweetsViewModel::class.java)
         viewModel.init(SCREEN_NAME)
-
-        val tweetsAdapter = TweetsAdapter()
-        recycler.adapter = tweetsAdapter
-        setupScrollListener()
-
         if (savedInstanceState == null) {
             viewModel.loadInitTweets()
         } else {
             viewModel.loadSavedTweets()
         }
+        setupList()
+    }
 
+    private fun setupList() {
+        val tweetsAdapter = TweetsAdapter()
+        recycler.adapter = tweetsAdapter
+        setupScrollListener()
         swiperefresh.setOnRefreshListener {
             viewModel.loadInitTweets()
         }
-
         viewModel.getTweetsLiveData().observe(this, Observer {
             tweetsAdapter.updateUser(it.first)
             tweetsAdapter.submitList(it.second)
             swiperefresh.isRefreshing = false
         })
     }
-
 
     private fun setupScrollListener() {
         val layoutManager = recycler.layoutManager as LinearLayoutManager

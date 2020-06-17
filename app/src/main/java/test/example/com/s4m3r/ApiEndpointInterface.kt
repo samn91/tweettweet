@@ -1,11 +1,11 @@
 package test.example.com.s4m3r
 
-import TweetDto
-import UserDto
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
+import test.example.com.s4m3r.dto.TweetDto
+import test.example.com.s4m3r.dto.UserDto
 
 private const val contType = "Content-Type: application/json"
 private const val auth = AUTh // stored in a secret file that will not be push to git

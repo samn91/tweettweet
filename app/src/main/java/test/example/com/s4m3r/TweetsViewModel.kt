@@ -1,7 +1,5 @@
 package test.example.com.s4m3r
 
-import TweetDto
-import UserDto
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.Single
@@ -9,6 +7,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Function4
+import test.example.com.s4m3r.dto.TweetDto
+import test.example.com.s4m3r.dto.UserDto
 
 /**
  * Created by Samer on 7/7/2019 7:18 AM.
@@ -17,6 +17,7 @@ import io.reactivex.functions.Function4
 class TweetsViewModel : ViewModel() {
     companion object {
         private const val TAG = "TweetsViewModel"
+
         // The minimum number of items to have below your current scroll position
         // before loading more.
         private const val THREASHILD = 5
@@ -27,6 +28,7 @@ class TweetsViewModel : ViewModel() {
     private val errorLiveData = SingleLiveEvent<Nothing?>()
 
     fun getTweetsLiveData(): LiveData<Pair<UserDto, List<TweetDto>>> = tweetsLiveData
+
     //    fun getClearLiveData(): LiveData<Nothing?> = clearLiveData
     fun getErrorLiveData(): LiveData<Nothing?> = errorLiveData
 
@@ -119,10 +121,11 @@ class TweetsViewModel : ViewModel() {
     }
 
     fun loadSavedTweets() {
-        if (userDto == null || tweetList.isNullOrEmpty()) {
+        val userDtoCopy = userDto
+        if (userDtoCopy == null || tweetList.isNullOrEmpty()) {
             loadInitTweets()
         } else {
-            tweetsLiveData.value = Pair(userDto!!, tweetList.toList())
+            tweetsLiveData.value = Pair(userDtoCopy, tweetList.toList())
         }
     }
 }

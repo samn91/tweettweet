@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_tweet.view.*
 import test.example.com.s4m3r.dto.TweetDto
@@ -26,17 +27,28 @@ class TweetsAdapter : ListAdapter<TweetDto, RecyclerView.ViewHolder>(object : Di
         val tweetDto = getItem(position)
 
         holder.itemView.descriptionTextView.text = tweetDto.text
-        holder.itemView.timeTextView.text = tweetDto.created_at
+        holder.itemView.timeTextView.text = tweetDto.created_at.split(" +").firstOrNull()
         holder.itemView.nameTextView.text = user?.name
 
         holder.itemView.retweetsTextView.text = tweetDto.retweetCount.toString()
         holder.itemView.likeTextView.text = tweetDto.favoriteCount.toString()
 
+        val idelingDecrement = object : Callback {
+            override fun onSuccess() {
+                TweetsViewModel.idlingResource.decrement()
+            }
+
+            override fun onError(e: Exception?) {
+                TweetsViewModel.idlingResource.decrement()
+            }
+        }
         tweetDto.entities?.media?.getOrNull(0)?.mediaUrl?.let {
-            Picasso.get().load(it).into(holder.itemView.mediaImageView)
+            TweetsViewModel.idlingResource.increment()
+            Picasso.get().load(it).into(holder.itemView.mediaImageView, idelingDecrement)
         }
         user?.profile_image_url?.let {
-            Picasso.get().load(it).into(holder.itemView.avatarImageView)
+            TweetsViewModel.idlingResource.increment()
+            Picasso.get().load(it).into(holder.itemView.avatarImageView, idelingDecrement)
         }
     }
 

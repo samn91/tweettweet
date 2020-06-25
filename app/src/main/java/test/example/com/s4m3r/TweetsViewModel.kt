@@ -2,6 +2,7 @@ package test.example.com.s4m3r
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.test.espresso.idling.CountingIdlingResource
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -9,6 +10,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Function4
 import test.example.com.s4m3r.dto.TweetDto
 import test.example.com.s4m3r.dto.UserDto
+
 
 /**
  * Created by Samer on 7/7/2019 7:18 AM.
@@ -21,7 +23,9 @@ class TweetsViewModel : ViewModel() {
         // The minimum number of items to have below your current scroll position
         // before loading more.
         private const val THREASHILD = 5
+        val idlingResource = CountingIdlingResource("Tweets")
     }
+
 
     private val tweetsLiveData = SingleLiveEvent<Pair<UserDto, List<TweetDto>>>()
     private val clearLiveData = SingleLiveEvent<Nothing?>()
@@ -53,6 +57,7 @@ class TweetsViewModel : ViewModel() {
 
     fun loadInitTweets() {
         checkScreenNameSet()
+        idlingResource.increment()
         Single.zip(
                 RetrofitHelper.ApiInterface.getUserInfo(SCREEN_NAME),
                 RetrofitHelper.ApiInterface.getTweetsWithPage(screenName, 1),
@@ -66,6 +71,9 @@ class TweetsViewModel : ViewModel() {
                     res.addAll(it3)
                     return@Function4 res
                 }).observeOn(AndroidSchedulers.mainThread())
+                .doFinally {
+                    idlingResource.decrement()
+                }
                 .subscribe({
                     notifyWithNewTweets(it, true)
                 }, {
@@ -82,12 +90,14 @@ class TweetsViewModel : ViewModel() {
             //got to the end of tweets
             return
         }
+        idlingResource.increment()
 
         isFetchinNext = true
         RetrofitHelper.ApiInterface.getTweetsWithMaxId(screenName, minTweetId!! - 1)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally {
                     isFetchinNext = false
+                    idlingResource.decrement()
                 }
                 .subscribe({
                     notifyWithNewTweets(it, false)

@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_tweet.view.*
 import test.example.com.s4m3r.dto.TweetDto
 import test.example.com.s4m3r.dto.UserDto
@@ -31,10 +32,12 @@ class TweetsAdapter : ListAdapter<TweetDto, RecyclerView.ViewHolder>(object : Di
         holder.itemView.retweetsTextView.text = tweetDto.retweetCount.toString()
         holder.itemView.likeTextView.text = tweetDto.favoriteCount.toString()
 
-//        val mediaUrl = tweetDto.entities?.media?.getOrNull(0)?.mediaUrl
-//        Picasso.get().load(mediaUrl).into(holder.itemView.mediaImageView)
-
-//        Picasso.get().load(user?.profile_image_url).into(holder.itemView.avatarImageView)
+        tweetDto.entities?.media?.getOrNull(0)?.mediaUrl?.let {
+            Picasso.get().load(it).into(holder.itemView.mediaImageView)
+        }
+        user?.profile_image_url?.let {
+            Picasso.get().load(it).into(holder.itemView.avatarImageView)
+        }
     }
 
     fun updateUser(newUser: UserDto) {

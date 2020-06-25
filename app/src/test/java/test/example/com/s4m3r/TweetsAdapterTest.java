@@ -49,7 +49,7 @@ public class TweetsAdapterTest {
     }
 
     private void changeUserName(String name) {
-        tweetsAdapter.updateUser(new UserDto(0, name, "Samer Screem", "", "", "", ""));
+        tweetsAdapter.updateUser(new UserDto(0, name, "Samer Screem", "", "", null,""));
     }
 
 

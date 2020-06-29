@@ -28,7 +28,7 @@ class TweetsAdapter : ListAdapter<TweetDto, RecyclerView.ViewHolder>(object : Di
 
         holder.itemView.descriptionTextView.text = tweetDto.text
         holder.itemView.timeTextView.text = tweetDto.created_at.split(" +").firstOrNull()
-        holder.itemView.nameTextView.text = user?.name
+        holder.itemView.nameTextView.text = user?.screen_name
 
         holder.itemView.retweetsTextView.text = tweetDto.retweetCount.toString()
         holder.itemView.likeTextView.text = tweetDto.favoriteCount.toString()
@@ -42,10 +42,12 @@ class TweetsAdapter : ListAdapter<TweetDto, RecyclerView.ViewHolder>(object : Di
                 TweetsViewModel.idlingResource.decrement()
             }
         }
+
         tweetDto.entities?.media?.getOrNull(0)?.mediaUrl?.let {
             TweetsViewModel.idlingResource.increment()
             Picasso.get().load(it).into(holder.itemView.mediaImageView, idelingDecrement)
-        }
+        } ?: holder.itemView.mediaImageView.setImageDrawable(null)
+
         user?.profile_image_url?.let {
             TweetsViewModel.idlingResource.increment()
             Picasso.get().load(it).into(holder.itemView.avatarImageView, idelingDecrement)

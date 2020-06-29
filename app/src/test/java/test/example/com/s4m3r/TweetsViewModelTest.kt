@@ -22,7 +22,7 @@ class TweetsViewModelTest {
     fun setUp() {
         RxAndroidPlugins.setInitMainThreadSchedulerHandler { Schedulers.trampoline() }
         tweetsViewModel = TweetsViewModel()
-        tweetsViewModel.init(SCREEN_NAME)
+        tweetsViewModel.screenName = (SCREEN_NAME)
     }
 
 

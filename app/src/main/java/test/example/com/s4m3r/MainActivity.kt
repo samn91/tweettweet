@@ -1,6 +1,10 @@
 package test.example.com.s4m3r
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -8,16 +12,41 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: TweetsViewModel
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == R.id.account) {
+
+            val editText = EditText(this).apply { setText(viewModel.screenName) }
+            AlertDialog.Builder(this)
+                    .setTitle("Current Account:")
+                    .setView(editText)
+                    .setPositiveButton("ok") { _, _ ->
+                        val newAccount = editText.text.toString()
+                        viewModel.screenName = newAccount
+                        viewModel.loadInitTweets()
+                    }
+                    .show()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         viewModel = ViewModelProviders.of(this).get(TweetsViewModel::class.java)
-        viewModel.init(SCREEN_NAME)
+        viewModel.screenName = SCREEN_NAME
         if (savedInstanceState == null) {
             viewModel.loadInitTweets()
         } else {
@@ -34,6 +63,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.loadInitTweets()
         }
         viewModel.getTweetsLiveData().observe(this, Observer {
+            supportActionBar!!.title = it.first.name
             tweetsAdapter.updateUser(it.first)
             tweetsAdapter.submitList(it.second)
             swiperefresh.isRefreshing = false

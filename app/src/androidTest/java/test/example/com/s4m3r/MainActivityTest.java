@@ -22,6 +22,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
@@ -49,7 +52,6 @@ public class MainActivityTest {
 
     @Test
     public void onLoadTest() {
-
         textViewNotEmptyInRecyclerView(R.id.nameTextView);
         textViewNotEmptyInRecyclerView(R.id.timeTextView);
         textViewNotEmptyInRecyclerView(R.id.descriptionTextView);
@@ -61,15 +63,31 @@ public class MainActivityTest {
                                 childAtPosition(//cardView
                                         childAtPosition(withId(R.id.recycler), 0),//constrantLayout
                                         0))));
-        imageView2.check(matches(hasDrawble()));
+        imageView2.check(matches(hasDrawable()));
+    }
+
+
+    @Test
+    public void validateChangeAccountName() {
+        onView(withId(R.id.account)).perform(click());
+        String newScreenName = "Android";
+        ViewInteraction viewInteraction = onView(withText(SecretKt.SCREEN_NAME));
+        viewInteraction.perform(click(), replaceText(newScreenName));
+        onView(withText(newScreenName)).perform(closeSoftKeyboard());
+        onView(withId(android.R.id.button1)).perform(click());
+
+        onView(firstViewInRecycler(withId(R.id.recycler), withId(R.id.nameTextView)))
+                .check(matches(withText(newScreenName)));
+
+        onLoadTest();
     }
 
     private void textViewNotEmptyInRecyclerView(int p) {
-        onView(findViewInhericy(withId(R.id.recycler), withId(p), 0))
+        onView(firstViewInRecycler(withId(R.id.recycler), withId(p)))
                 .check(matches(not(withText(""))));
     }
 
-    private static Matcher<View> hasDrawble() {
+    private static Matcher<View> hasDrawable() {
 
         return new TypeSafeMatcher<View>() {
             @Override
@@ -84,8 +102,8 @@ public class MainActivityTest {
         };
     }
 
-    private static Matcher<View> findViewInhericy(
-            final Matcher<View> parentMatcher, final Matcher<View> childMatcher, final int position) {
+    private static Matcher<View> firstViewInRecycler(
+            final Matcher<View> parentMatcher, final Matcher<View> childMatcher) {
 
         return new TypeSafeMatcher<View>() {
             @Override
@@ -100,7 +118,7 @@ public class MainActivityTest {
                     ViewParent card = view.getParent().getParent();
                     ViewParent parent = card.getParent();
                     return parent instanceof ViewGroup && parentMatcher.matches(parent)
-                            && card.equals(((ViewGroup) parent).getChildAt(position));
+                            && card.equals(((ViewGroup) parent).getChildAt(0));
                 }
 
                 return false;
@@ -126,21 +144,4 @@ public class MainActivityTest {
             }
         };
     }
-
-
-//    private Matcher<View> withItemText(final String itemText) {
-//        return new TypeSafeMatcher<View>() {
-//            @Override
-//            public boolean matchesSafely(View item) {
-//                return allOf(
-//                        isDescendantOfA(isAssignableFrom(ListView.class)),
-//                        withText(itemText)).matches(item);
-//            }
-//
-//            @Override
-//            public void describeTo(Description description) {
-//                description.appendText("is isDescendantOfA LV with text " + itemText);
-//            }
-//        };
-//    }
 }

@@ -13,7 +13,7 @@ import test.example.com.s4m3r.dto.UserDto
 
 
 /**
- * Created by Samer on 7/7/2019 7:18 AM.
+ * Created by Samer on 7/7/2019 7:18 AM
  */
 
 class TweetsViewModel : ViewModel() {
@@ -27,6 +27,8 @@ class TweetsViewModel : ViewModel() {
     }
 
 
+    var screenName: String = ""
+
     private val tweetsLiveData = SingleLiveEvent<Pair<UserDto, List<TweetDto>>>()
     private val clearLiveData = SingleLiveEvent<Nothing?>()
     private val errorLiveData = SingleLiveEvent<Nothing?>()
@@ -39,15 +41,10 @@ class TweetsViewModel : ViewModel() {
     private var minTweetId: Long? = null
     private val compositeDisposable = CompositeDisposable()
     private val tweetList = mutableListOf<TweetDto>()
-    private var screenName: String = ""
 
     private var userDto: UserDto? = null
 
     private var isFetchinNext = false
-
-    fun init(screenName: String) {
-        this.screenName = screenName
-    }
 
     private fun checkScreenNameSet() {
         if (screenName.isEmpty()) {
@@ -59,7 +56,7 @@ class TweetsViewModel : ViewModel() {
         checkScreenNameSet()
         idlingResource.increment()
         Single.zip(
-                RetrofitHelper.ApiInterface.getUserInfo(SCREEN_NAME),
+                RetrofitHelper.ApiInterface.getUserInfo(screenName),
                 RetrofitHelper.ApiInterface.getTweetsWithPage(screenName, 1),
                 RetrofitHelper.ApiInterface.getTweetsWithPage(screenName, 2),
                 RetrofitHelper.ApiInterface.getTweetsWithPage(screenName, 3),

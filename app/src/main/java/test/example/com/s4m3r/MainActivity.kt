@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -26,14 +27,13 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.itemId == R.id.account) {
 
-            val editText = EditText(this).apply { setText(viewModel.screenName) }
+            val editText = EditText(this).apply { setText(viewModel.getScreenName()) }
             AlertDialog.Builder(this)
                     .setTitle("Current Account:")
                     .setView(editText)
                     .setPositiveButton("ok") { _, _ ->
                         val newAccount = editText.text.toString()
-                        viewModel.screenName = newAccount
-                        viewModel.loadInitTweets()
+                        viewModel.loadInitTweets(newAccount)
                     }
                     .show()
             return true
@@ -46,7 +46,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         viewModel = ViewModelProviders.of(this).get(TweetsViewModel::class.java)
-        viewModel.screenName = SCREEN_NAME
         if (savedInstanceState == null) {
             viewModel.loadInitTweets()
         } else {
@@ -67,6 +66,11 @@ class MainActivity : AppCompatActivity() {
             tweetsAdapter.updateUser(it.first)
             tweetsAdapter.submitList(it.second)
             swiperefresh.isRefreshing = false
+        })
+
+        viewModel.getErrorLiveData().observe(this, Observer {
+            Toast.makeText(applicationContext, getString(R.string.error), Toast.LENGTH_SHORT).show()
+//            tweetsAdapter.submitList(it.second)
         })
     }
 

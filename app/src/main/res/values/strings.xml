@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">S4m3r</string>
+    <string name="error">Something went wrong</string>
 </resources>

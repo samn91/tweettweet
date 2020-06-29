@@ -70,7 +70,7 @@ public class TweetsAdapterTest {
         String retweetFromTextView = getStringFromViewHolderView(viewHolder, R.id.retweetsTextView);
         String likeFromTextView = getStringFromViewHolderView(viewHolder, R.id.likeTextView);
 
-        Assert.assertEquals("Samer", nameFromTextView);
+        Assert.assertEquals("Samer Screem", nameFromTextView);
         Assert.assertEquals("10", retweetFromTextView);
         Assert.assertEquals("5", likeFromTextView);
 

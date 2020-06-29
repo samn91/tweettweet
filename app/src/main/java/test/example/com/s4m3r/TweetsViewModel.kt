@@ -27,7 +27,7 @@ class TweetsViewModel : ViewModel() {
     }
 
 
-    var screenName: String = ""
+    private var screenName: String = ""
 
     private val tweetsLiveData = SingleLiveEvent<Pair<UserDto, List<TweetDto>>>()
     private val clearLiveData = SingleLiveEvent<Nothing?>()
@@ -52,8 +52,10 @@ class TweetsViewModel : ViewModel() {
         }
     }
 
-    fun loadInitTweets() {
-        checkScreenNameSet()
+    fun getScreenName() = screenName
+
+    fun loadInitTweets(newScreenName: String = SCREEN_NAME) {
+        screenName = newScreenName
         idlingResource.increment()
         Single.zip(
                 RetrofitHelper.ApiInterface.getUserInfo(screenName),
